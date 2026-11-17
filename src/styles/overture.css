@@ -1,0 +1,12 @@
+#overture { display: none; position: fixed; inset: 0; z-index: 200; background: #22344a; color: #fbeff0; user-select: none; -webkit-user-select: none; }
+html.play-overture #overture { display: block; }
+html.play-overture { overflow: hidden; }
+.ov-svg { width: 100%; height: 100%; font-family: var(--mono); }
+.ov-count { font-size: 13px; letter-spacing: 0.08em; font-variant-numeric: tabular-nums; font-weight: 300; }
+.ov-tib { font-family: var(--tibetan); font-size: clamp(28px, 5vw, 56px); }
+.ov-cap { font-size: 10.5px; letter-spacing: 0.22em; font-weight: 300; }
+.ov-skip {
+  position: absolute; right: max(22px, env(safe-area-inset-right)); bottom: max(22px, env(safe-area-inset-bottom));
+  min-width: 44px; min-height: 44px; padding: 10px 4px; font-size: 13px; letter-spacing: 0.06em; color: #f3d9db; opacity: 0.8;
+}
+.ov-skip:hover { opacity: 1; }

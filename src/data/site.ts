@@ -1,6 +1,9 @@
 // Single source of truth for personal details shown across the site.
 // Tibetan strings were reconstructed from the PDF — ask Rigzen to proofread them.
 
+/** Change once a custom domain is connected in Vercel. */
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rigzen-phintso-bhutia.vercel.app';
+
 export const site = {
   name: 'Rigzen Phintso Bhutia',
   first: 'Rigzen',

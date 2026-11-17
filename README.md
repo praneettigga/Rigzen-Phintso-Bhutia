@@ -1,49 +1,50 @@
 # Rigzen Phintso Bhutia — Architecture Portfolio
 
-Portfolio site for Rigzen Phintso Bhutia, a 4th-year architecture student from Sikkim at Manipal School of Architecture & Planning. Built with [Astro](https://astro.build) as a fully static site, ready for Vercel.
+Portfolio site for Rigzen Phintso Bhutia, a 4th-year architecture student from Sikkim at Manipal School of Architecture & Planning. Built with [Next.js](https://nextjs.org) (App Router, every page pre-rendered at build time), ready for Vercel.
 
 ## Develop
 
 ```bash
 npm install
-npm run dev        # http://localhost:4321
-npm run check      # type-check .astro / .ts
-npm run build      # static output in dist/
-npm run preview    # serve dist/ locally
+npm run dev        # http://localhost:3000
+npm run typecheck  # tsc --noEmit
+npm run build      # production build (.next/)
+npm run start      # serve the production build
 ```
 
-Node 20.3+ (see `.nvmrc`).
+Node 20.9+ (see `.nvmrc`).
 
 ## Deploy to Vercel
 
 Either:
 
-- **Git:** push this repo to GitHub → vercel.com → *Add New Project* → import it. Vercel detects Astro; `vercel.json` already sets the build command, output directory and cache headers.
+- **Git:** push this repo to GitHub → vercel.com → *Add New Project* → import it. Vercel detects Next.js automatically; nothing to configure.
 - **CLI:** `npm i -g vercel && vercel` (then `vercel --prod`).
 
-After connecting a custom domain, update `site` in `astro.config.mjs` and the sitemap line in `public/robots.txt`.
+After connecting a custom domain, set the `NEXT_PUBLIC_SITE_URL` environment variable in Vercel (or change `SITE_URL` in `src/data/site.ts`). It feeds canonical URLs, Open Graph, `sitemap.xml` and `robots.txt`.
 
 ## Where things live
 
 | What | Where |
 | --- | --- |
 | Name, email, education, skills, languages, menu labels | `src/data/site.ts` |
-| Projects (text, captions, figure order, layout) | `src/content/projects/*.md` |
+| Projects (text, captions, figure order, layout) | `src/content/projects.ts` |
 | Images (extracted from the PDF) | `src/assets/brand`, `src/assets/projects/<slug>/` |
-| Colours, type scale, reveal animations | `src/styles/global.css` |
-| Opening "overture" sequence | `src/components/Overture.astro` |
-| Hero (intro + portrait) | `src/components/Hero.astro` |
-| 3D cover-flow | `src/pages/work/index.astro` |
-| Project page ("liner notes") | `src/pages/work/[slug].astro` |
-| Scroll, smooth-scroll, split text, panorama | `src/scripts/motion.ts` |
+| Colours, type scale, reveal animations | `src/styles/global.css` (+ per-area CSS in `src/styles/`) |
+| Opening "overture" sequence | `src/components/Overture.tsx` |
+| Hero (intro + portrait) | `src/components/Hero.tsx` |
+| Header + overlay menu | `src/components/Chrome.tsx` |
+| 3D cover-flow | `src/components/CoverFlow.tsx` |
+| Project page ("liner notes") | `src/app/work/[slug]/page.tsx` |
+| Scroll reveals, smooth scroll, split text, pinned panorama | `src/lib/motion.ts` (run on every route change by `src/components/MotionRoot.tsx`) |
 
 ### Adding or editing a project
 
-Create `src/content/projects/06-name.md` with the same frontmatter shape as the others. Each chapter has a `heading`, optional `body`, a `layout` (`stack`, `pair`, `trio`, `panorama`) and `figures` (`src`, `caption`, optional `size: full | wide | tall`). Figures are numbered automatically.
+Import the images at the top of `src/content/projects.ts` and add an entry to the `projects` array (same shape as the others). Each chapter has a `heading`, optional `body`, a `layout` (`stack`, `pair`, `trio`, `panorama`) and `figures` (`src`, `caption`, optional `size: full | wide | tall`). Figures are numbered automatically.
 
 ### Swapping the hero photo for an animated self-portrait
 
-Put the file in `public/` (e.g. `public/self-portrait.mp4`, `.webm`, `.gif` or `.webp`) and set `selfPortrait: '/self-portrait.mp4'` in `src/data/site.ts`.
+Create a `public/` folder and put the file there (e.g. `public/self-portrait.mp4`, `.webm`, `.gif` or `.webp`) and set `selfPortrait: '/self-portrait.mp4'` in `src/data/site.ts`.
 
 ### Re-extracting images from the PDF
 

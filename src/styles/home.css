@@ -1,0 +1,74 @@
+/* ── hero (after gracesportfolio.com) ── */
+.hero { position: relative; min-height: 100svh; display: grid; place-items: center; padding: calc(var(--header-h) + 10vh) var(--gutter) 10vh; }
+.hero-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: clamp(2rem, 5vw, 5rem); width: 100%; max-width: 1100px; }
+.hero-intro { flex: 0 1 30rem; }
+.hero-lead { font-size: var(--step-1); line-height: 1.6; font-weight: 360; color: var(--ink); }
+.hero-second { margin-top: 1.4em; }
+.hero-sig { margin-top: 2.2rem; display: flex; align-items: center; gap: 0.8rem; color: var(--rose); }
+.hero-rule { flex: 1; height: 1px; background: var(--rose); opacity: 0.6; max-width: 5rem; }
+.hero-portrait { position: relative; flex: 0 1 min(380px, 70vw); }
+.hero-frame-wrap { position: relative; }
+.hero-frame { border: 1.5px solid var(--rose); overflow: hidden; aspect-ratio: 815 / 1087; background: var(--blush-50); }
+.hero-frame :is(img, video) { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.03); transition: transform 1.2s var(--ease), filter 0.8s; }
+.hero-portrait:hover .hero-frame :is(img, video) { transform: scale(1.03); filter: grayscale(0.2); }
+.hero-scribble { position: absolute; inset: -14px; width: calc(100% + 28px); height: calc(100% + 28px); pointer-events: none; overflow: visible; }
+.hero-scribble path { fill: none; stroke: var(--ink); stroke-width: 0.6; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0.55; }
+.hero-scribble path + path { stroke: var(--coral); opacity: 0.6; }
+html:not(.js) .hero-scribble path, .hero-portrait.is-in .hero-scribble path { animation: hero-draw 2.2s var(--ease-io) forwards 0.9s; }
+.hero-portrait.is-in .hero-scribble path + path { animation-delay: 1.5s; }
+@keyframes hero-draw { to { stroke-dashoffset: 0; } }
+.hero-portrait figcaption { margin-top: 1rem; text-align: right; }
+.hero-side { position: absolute; top: 50%; writing-mode: vertical-rl; transform: translateY(-50%) rotate(180deg); }
+.hero-side-l { left: var(--gutter); }
+.hero-side-r { right: var(--gutter); transform: translateY(-50%); }
+@media (max-width: 760px) { .hero-side { display: none; } .hero { padding-top: calc(var(--header-h) + 6vh); } }
+
+/* ── cover statement (the PDF cover) ── */
+.cover { padding: clamp(4rem, 10vw, 9rem) var(--gutter) clamp(3rem, 6vw, 5rem); max-width: var(--maxw); margin-inline: auto; }
+.cover-tags { text-align: center; margin-bottom: clamp(2.5rem, 6vw, 5rem); }
+.cover-sheet { position: relative; display: grid; justify-items: center; gap: clamp(0.6rem, 2vw, 1.6rem); padding-bottom: 1rem; }
+.cover-line { font-size: var(--step-2); letter-spacing: 0.02em; font-weight: 340; }
+.cover-scribble { width: min(1100px, 92vw); }
+.cover-scribble img { width: 100%; height: auto; }
+.cover-tib { font-size: var(--step-2); color: var(--ink); }
+.cover-yr { position: absolute; bottom: 0; font-size: var(--step-2); font-weight: 300; }
+.cover-yl { left: 0; }
+.cover-yr2 { right: 0; }
+@media (max-width: 640px) {
+  .cover-sheet { grid-template-columns: 1fr 1fr; }
+  .cover-sheet > :not(.cover-yr) { grid-column: 1 / -1; }
+  .cover-yr { position: static; }
+  .cover-yl { justify-self: start; }
+  .cover-yr2 { justify-self: end; }
+}
+
+/* ── contents strip ── */
+.contents { padding-block: clamp(3rem, 8vw, 7rem); }
+.contents-title { font-size: var(--step-3); font-weight: 340; letter-spacing: -0.02em; margin-bottom: clamp(2.5rem, 6vw, 5rem); }
+.cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(1rem, 3vw, 3.2rem); }
+.card a { display: grid; grid-template-columns: auto 1fr; column-gap: 0.7rem; }
+.card-num { font-size: var(--step-2); font-weight: 300; color: var(--ink); align-self: start; margin-top: 18%; line-height: 1; }
+.card-num sup { font-size: 0.45em; vertical-align: 1.1em; margin-right: 0.05em; }
+.card-poster { display: block; border: 1.5px solid var(--ink); aspect-ratio: 164 / 333; overflow: hidden; transition: transform 0.7s var(--ease), box-shadow 0.7s var(--ease); background: var(--blush-50); }
+.card-poster img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
+.card a:hover .card-poster { transform: translateY(-10px) rotate(-1deg); box-shadow: 0 24px 40px -24px rgba(54, 81, 111, 0.45); }
+.card a:hover .card-poster img { transform: scale(1.06); }
+.card-meta { grid-column: 2; display: grid; gap: 0.2rem; margin-top: 0.55rem; font-size: 0.72rem; }
+.card-name { color: var(--ink); display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; }
+.card-name .tibetan { font-size: 0.95rem; }
+.card-wylie { color: var(--ink-soft); }
+.card-strong { color: var(--ink); font-weight: 450; }
+.card-sub { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.66rem; }
+.contents-view { margin-top: clamp(3rem, 6vw, 5rem); font-size: var(--step-1); }
+@media (max-width: 1000px) { .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 3rem; } }
+@media (max-width: 640px) {
+  .cards { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 62vw; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 1rem; margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); scrollbar-width: none; }
+  .card { scroll-snap-align: start; }
+}
+
+/* ── about teaser ── */
+.about-teaser { display: grid; grid-template-columns: 1.4fr 1fr; gap: clamp(2rem, 6vw, 6rem); padding-top: clamp(2.5rem, 6vw, 5rem); align-items: end; }
+.about-teaser-big { font-size: var(--step-2); line-height: 1.45; font-weight: 320; }
+.about-teaser-side { display: grid; gap: 1.5rem; color: var(--rose-ink); }
+.about-teaser-side a { color: var(--ink); justify-self: start; }
+@media (max-width: 860px) { .about-teaser { grid-template-columns: 1fr; } }
