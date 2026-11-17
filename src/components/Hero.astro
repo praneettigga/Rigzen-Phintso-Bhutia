@@ -1,0 +1,79 @@
+---
+import { Image } from 'astro:assets';
+import portrait from '../assets/brand/portrait.jpg';
+import { site } from '../data/site';
+const media = site.selfPortrait;
+const isVideo = media ? /\.(mp4|webm)$/i.test(media) : false;
+---
+<section class="hero" aria-labelledby="hero-title">
+  <h1 id="hero-title" class="sr-only">{site.name} — architecture portfolio</h1>
+  <p class="side side-l label" aria-hidden="true">Sikkim / India</p>
+  <p class="side side-r label" aria-hidden="true">Selected works · 2023 — 2026</p>
+
+  <div class="hero-inner">
+    <div class="intro">
+      <p class="lead" data-split style="--stagger:11ms">
+        i’m rigzen--<br />an architecture student, sketcher, illustrator, painter, quizzer, singer and
+        table-tennis player from sikkim, now in my 4th year at manipal school of architecture &amp; planning.
+      </p>
+      <p class="lead second" data-reveal style="--delay:900ms">
+        i’m looking for an architecture internship — <a href="/contact" class="underline-rose">say hello!</a>
+      </p>
+      <div class="sig" data-reveal style="--delay:1200ms">
+        <span class="rule"></span>
+        <span class="tibetan" lang="bo">{site.tibetanName}</span>
+        <span class="rule"></span>
+      </div>
+    </div>
+
+    <figure class="portrait" data-reveal style="--delay:250ms">
+      <div class="frame-wrap">
+      <div class="frame">
+        {media ? (
+          isVideo ? (
+            <video src={media} autoplay muted loop playsinline aria-label={`An animated drawing of ${site.first}`}></video>
+          ) : (
+            <img src={media} alt={`An animated drawing of ${site.first}`} />
+          )
+        ) : (
+          <Image src={portrait} alt={`Portrait of ${site.name}`} widths={[360, 540, 720]} sizes="(max-width: 760px) 70vw, 380px" loading="eager" fetchpriority="high" />
+        )}
+      </div>
+      <svg class="scribble" viewBox="0 0 100 130" preserveAspectRatio="none" aria-hidden="true">
+        <path pathLength="1" d="M3 4.5 C30 2.8 70 3.6 97.2 3.1 C96.4 40 97.6 90 96.8 126.4 C66 127.4 34 126.2 2.6 127.2 C3.6 90 2.4 42 3.4 2.2" />
+        <path pathLength="1" d="M5.5 1.6 C40 2.4 62 1.2 98.6 5.8 C98.2 46 99.4 88 98.4 128.4 C60 129 30 128.6 1.2 125.6 C1.8 80 1 40 1.6 6" />
+      </svg>
+      </div>
+      <figcaption class="label">{site.role}</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .hero { position: relative; min-height: 100svh; display: grid; place-items: center; padding: calc(var(--header-h) + 10vh) var(--gutter) 10vh; }
+  .hero-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: clamp(2rem, 5vw, 5rem); width: 100%; max-width: 1100px; }
+  .intro { flex: 0 1 30rem; }
+  .lead { font-size: var(--step-1); line-height: 1.6; font-weight: 360; color: var(--ink); }
+  .second { margin-top: 1.4em; }
+  .sig { margin-top: 2.2rem; display: flex; align-items: center; gap: 0.8rem; color: var(--rose); font-size: var(--step-0); }
+  .rule { flex: 1; height: 1px; background: var(--rose); opacity: 0.6; max-width: 5rem; }
+  .frame-wrap { position: relative; }
+  .portrait { position: relative; flex: 0 1 min(380px, 70vw); }
+  .frame { border: 1.5px solid var(--rose); overflow: hidden; aspect-ratio: 815 / 1087; background: var(--blush-50); }
+  .frame :is(img, video) { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.03); transition: transform 1.2s var(--ease), filter 0.8s; }
+  .portrait:hover .frame :is(img, video) { transform: scale(1.03); filter: grayscale(0.2); }
+  .scribble { position: absolute; inset: -14px; width: calc(100% + 28px); height: calc(100% + 28px); pointer-events: none; overflow: visible; }
+  .scribble path { fill: none; stroke: var(--ink); stroke-width: 0.6; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0.55; }
+  .scribble path + path { stroke: var(--coral); opacity: 0.6; }
+  :global(html:not(.js)) .scribble path, .portrait:global(.is-in) .scribble path { animation: draw 2.2s var(--ease-io) forwards 0.9s; }
+  .portrait:global(.is-in) .scribble path + path { animation-delay: 1.5s; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  figcaption { margin-top: 1rem; text-align: right; }
+  .side { position: absolute; top: 50%; writing-mode: vertical-rl; transform: translateY(-50%) rotate(180deg); }
+  .side-l { left: var(--gutter); }
+  .side-r { right: var(--gutter); transform: translateY(-50%); }
+  @media (max-width: 760px) {
+    .side { display: none; }
+    .hero { padding-top: calc(var(--header-h) + 6vh); }
+  }
+</style>

@@ -1,0 +1,194 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Figure from '../../components/Figure.astro';
+import Lightbox from '../../components/Lightbox.astro';
+import { getProjects, slugOf, pad, tibNum, type Project } from '../../lib';
+
+export async function getStaticPaths() {
+  const all = await getProjects();
+  return all.map((p, i) => ({
+    params: { slug: slugOf(p) },
+    props: { project: p, next: all[(i + 1) % all.length], total: all.length },
+  }));
+}
+
+interface Props { project: Project; next: Project; total: number }
+const { project, next, total } = Astro.props;
+const d = project.data;
+
+// global figure numbering: hero is 01
+const figureTotal = 1 + d.chapters.reduce((n, c) => n + c.figures.length, 0);
+let fig = 1;
+const numbered = d.chapters.map((c) => ({ ...c, figures: c.figures.map((f) => ({ ...f, n: ++fig })) }));
+const name = d.wylie ?? d.title;
+---
+<Base title={`${name} — ${d.typology.split(' — ')[0]}`} description={`${d.deck} ${d.intro[0]}`.slice(0, 158)}>
+  <article class:list={['project', `layout-${d.layout}`]}>
+    <header class="p-head wrap">
+      <div class="meta-row label" data-reveal>
+        <span>{d.typology.split(' — ')[0]} · {d.year}</span>
+        <span>{pad(d.order)} / {pad(total)}</span>
+      </div>
+
+      <div class="p-grid">
+        <div class="p-text">
+          <p class="kicker label" data-reveal>Liner notes ✱</p>
+          <h1 class="p-title">
+            {d.tibetan ? (
+              <>
+                <span class="t-row" data-reveal style="--delay:120ms">
+                  <span class="t-num">{tibNum(d.order)}.</span><span class="tibetan" lang="bo">{d.tibetan}</span>
+                </span>
+                <span class="t-wylie" data-split style="--base:300ms">{d.wylie}</span>
+              </>
+            ) : (
+              <span class="t-plain" data-split>{d.title}<span class="rose">.</span></span>
+            )}
+          </h1>
+          <hr class="t-rule" />
+          <dl class="facts" data-reveal style="--delay:300ms">
+            {d.location && (<div><dt>Location</dt><dd>{d.location}</dd></div>)}
+            <div><dt>Typology</dt><dd>{d.typology}</dd></div>
+            <div><dt>Year</dt><dd>{d.year}</dd></div>
+            {d.meaning && (<div><dt>Name</dt><dd><em>{d.wylie}</em> — “{d.meaning}”</dd></div>)}
+          </dl>
+          <p class="deck" data-split style="--base:400ms; --stagger:9ms">{d.deck}</p>
+          {d.intro.map((t) => <p class="intro" data-reveal style="--delay:500ms">{t}</p>)}
+        </div>
+        <div class:list={['p-hero', d.hero.size ?? 'tall']}>
+          <Figure src={d.hero.src} caption={d.hero.caption} n={1} total={figureTotal} eager sizes="(max-width: 900px) 100vw, 50vw" delay={250} />
+        </div>
+      </div>
+    </header>
+
+    {numbered.map((c, ci) => (
+      <section class:list={['chapter', `ch-${c.layout}`]}>
+        <div class="ch-text wrap">
+          <span class="ch-num" data-reveal>{pad(ci + 2)}</span>
+          <h2 class="ch-heading" data-split style="--stagger:10ms">{c.heading}</h2>
+          {c.body && <p class="ch-body" data-reveal style="--delay:200ms">{c.body}</p>}
+        </div>
+
+        {c.layout === 'panorama' ? (
+          <div class="pano" data-panorama>
+            <div class="pano-track" data-panorama-track>
+              {c.figures.map((f) => (
+                <Figure src={f.src} caption={f.caption} n={f.n} total={figureTotal} sizes="(max-width: 900px) 260vw, 300vw" class="pano-fig" />
+              ))}
+            </div>
+            <p class="pano-hint label wrap" aria-hidden="true">← scroll to travel along the section →</p>
+          </div>
+        ) : (
+          <div class:list={['figs', c.layout === 'stack' ? 'stack' : 'grid', `n-${c.figures.length}`, c.layout]}>
+            {c.figures.map((f, fi) => (
+              <Figure
+                src={f.src}
+                caption={f.caption}
+                n={f.n}
+                total={figureTotal}
+                class={`size-${f.size ?? 'normal'} pos-${fi % 2 ? 'r' : 'l'}`}
+                delay={c.layout === 'stack' ? 0 : fi * 120}
+                sizes={f.size === 'full' ? '100vw' : c.layout === 'trio' ? '(max-width: 760px) 100vw, 33vw' : c.layout === 'pair' ? '(max-width: 760px) 100vw, 50vw' : '(max-width: 900px) 100vw, 75vw'}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+    ))}
+
+    <nav class="next wrap" aria-label="Next project">
+      <a href={`/work/${slugOf(next)}`} class="next-link" data-reveal>
+        <span class="label">Next edition · {pad(next.data.order)} / {pad(total)}</span>
+        <span class="next-title">
+          {next.data.tibetan && <span class="tibetan rose" lang="bo">{next.data.tibetan}</span>}
+          <span>{next.data.wylie ?? next.data.title}</span>
+        </span>
+        <span class="label">{next.data.typology.split(' — ')[0]} / {next.data.year} — turn to the next set of drawings</span>
+        <span class="next-cover"><Image src={next.data.cover} alt="" width={240} /></span>
+      </a>
+      <div class="credits">
+        <p class="label">Concept, design, drawings and visualisation — Rigzen Phintso Bhutia</p>
+        <a href="/work" class="arrow-link link-u">Return to collection <svg viewBox="0 0 12 12" fill="none" stroke="currentColor"><path d="M2 10 10 2M4 2h6v6" /></svg></a>
+      </div>
+    </nav>
+  </article>
+  <Lightbox />
+</Base>
+
+<style>
+  .p-head { padding-top: calc(var(--header-h) + 2.5rem); }
+  .meta-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 0.9rem; }
+  .p-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 6vw, 6rem); padding-top: clamp(2rem, 5vw, 4rem); align-items: start; }
+  .layout-sheets .p-grid, .layout-gallery .p-grid { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); }
+  .kicker { margin-bottom: 1.4rem; }
+  .p-title { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 0.5rem 1rem; font-weight: 300; }
+  .t-row { display: flex; align-items: baseline; gap: 0.15em; color: var(--rose); font-size: var(--step-4); line-height: 1.25; }
+  .t-num { font-family: var(--tibetan); font-size: 0.75em; }
+  .t-row .tibetan { line-height: 1.25; }
+  .t-wylie { font-size: var(--step-2); color: var(--ink); letter-spacing: 0.01em; padding-bottom: 0.6rem; }
+  .t-plain { grid-column: 1 / -1; font-size: var(--step-4); letter-spacing: -0.04em; line-height: 1.05; color: var(--ink); }
+  .t-rule { border: 0; height: 1px; background: var(--rose); opacity: 0.7; margin: 0.4rem 0 1.8rem; }
+  .facts { display: grid; gap: 0.35rem; font-size: var(--step--1); margin-bottom: 2.2rem; }
+  .facts div { display: grid; grid-template-columns: 6.5rem 1fr; gap: 1rem; }
+  .facts dt { color: var(--ink-soft); }
+  .facts dd { color: var(--ink); }
+  .deck { font-size: var(--step-2); line-height: 1.35; letter-spacing: -0.02em; font-weight: 320; margin-bottom: 1.6rem; max-width: 26ch; }
+  .intro { color: var(--rose-ink); max-width: 56ch; font-size: var(--step-0); }
+  .p-hero.tall { max-width: 520px; justify-self: end; width: 100%; }
+  @media (max-width: 900px) {
+    .p-grid, .layout-sheets .p-grid, .layout-gallery .p-grid { grid-template-columns: 1fr; }
+    .p-hero.tall { justify-self: stretch; max-width: none; }
+  }
+
+  .chapter { padding-top: clamp(5rem, 12vw, 10rem); }
+  .ch-text { display: grid; grid-template-columns: 4rem minmax(0, 1fr) minmax(0, 1fr); gap: 0.5rem 2rem; align-items: start; margin-bottom: clamp(2rem, 4vw, 3.5rem); }
+  .ch-num { font-size: var(--step--1); color: var(--rose); padding-top: 0.6em; letter-spacing: 0.08em; }
+  .ch-num::before { content: '✱'; margin-right: 0.3em; }
+  .ch-heading { font-size: var(--step-3); font-weight: 300; line-height: 1.15; letter-spacing: -0.03em; }
+  .ch-body { color: var(--ink-soft); max-width: 52ch; padding-top: 0.5rem; }
+  @media (max-width: 900px) { .ch-text { grid-template-columns: 2.6rem 1fr; } .ch-body { grid-column: 2; } }
+
+  .figs { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter); }
+  .figs.grid { display: grid; gap: clamp(1rem, 2.5vw, 2.2rem); align-items: start; }
+  .figs.grid.pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .figs.grid.trio { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .figs.grid.pair.n-3 > :global(:first-child) { grid-column: 1 / -1; }
+  .figs.stack { display: grid; gap: clamp(3rem, 7vw, 6rem); }
+  .figs.stack > :global(.size-normal) { width: min(100%, 62%); }
+  .figs.stack > :global(.size-normal.pos-r) { justify-self: end; }
+  .figs.stack > :global(.size-full) { width: 100vw; margin-inline: calc(50% - 50vw); }
+  .figs.stack > :global(.size-full figcaption) { padding-inline: var(--gutter); }
+  .figs.stack > :global(.size-full + .size-normal) { margin-top: -1rem; }
+  @media (max-width: 760px) {
+    .figs.grid.pair, .figs.grid.trio { grid-template-columns: 1fr; }
+    .figs.stack > :global(.size-normal) { width: 100%; }
+  }
+  /* sheets & gallery variants */
+  .layout-sheets .figs.grid :global(.media) { border: 1px solid var(--ink); background: #fff; }
+  .layout-gallery .figs.grid.pair { display: block; columns: 2; column-gap: clamp(1rem, 2.5vw, 2.2rem); }
+  .layout-gallery .figs.grid.pair > :global(*) { break-inside: avoid; margin-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+  @media (max-width: 760px) { .layout-gallery .figs.grid.pair { columns: 1; } }
+  .layout-gallery .p-hero :global(.media), .layout-gallery .figs :global(.media) { background: #fff; }
+
+  /* panorama */
+  .pano { overflow: hidden; }
+  .pano-track { display: flex; gap: 2rem; padding-inline: var(--gutter); width: max-content; }
+  .pano-track :global(.pano-fig) { width: auto; }
+  .pano-track :global(.pano-fig img) { height: min(72vh, 900px); width: auto; max-width: none; }
+  .pano-hint { margin-top: 1rem; text-transform: none; }
+  @media (max-width: 899px), (prefers-reduced-motion: reduce) {
+    .pano { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .pano-track :global(.pano-fig img) { height: 52vh; }
+  }
+
+  /* next edition */
+  .next { margin-top: clamp(7rem, 14vw, 12rem); }
+  .next-link { position: relative; display: grid; gap: 0.8rem; padding: clamp(2rem, 5vw, 4rem) 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+  .next-title { display: flex; flex-wrap: wrap; gap: 0.4em 0.8em; align-items: baseline; font-size: var(--step-4); font-weight: 300; letter-spacing: -0.04em; line-height: 1.1; transition: transform 0.7s var(--ease); }
+  .next-link:hover .next-title { transform: translateX(1rem); }
+  .next-cover { position: absolute; right: 0; top: 50%; width: clamp(70px, 10vw, 130px); border: 1.5px solid var(--ink); transform: translateY(-50%) rotate(3deg); transition: transform 0.7s var(--ease); }
+  .next-link:hover .next-cover { transform: translateY(-54%) rotate(-2deg); }
+  .credits { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding-top: 1.5rem; }
+  @media (max-width: 640px) { .next-cover { display: none; } }
+</style>

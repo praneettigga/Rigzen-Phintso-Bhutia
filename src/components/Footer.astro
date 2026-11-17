@@ -1,0 +1,50 @@
+---
+import Mark from './Mark.astro';
+import { site } from '../data/site';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="cta">
+      <p class="label">For internships, collaborations & conversations about space</p>
+      <a class="big" href="/contact"><span>Have a space in mind?</span> <span class="rose">Let’s draw it.</span></a>
+    </div>
+    <div class="row">
+      <a href="/" class="mark" aria-label="Home"><Mark size={40} /></a>
+      <div class="col">
+        <span class="tibetan rose" lang="bo">{site.tibetanName}</span>
+        <span class="label">{site.name}</span>
+      </div>
+      <div class="col">
+        <span class="label">Sikkim → Manipal, India</span>
+        <a class="link-u" href={`mailto:${site.email}`}>{site.email}</a>
+      </div>
+      <div class="col end">
+        <button type="button" class="label replay" data-replay>Replay overture ↺</button>
+        <span class="label">© {year}</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer { margin-top: clamp(6rem, 14vw, 12rem); border-top: 1px solid var(--line); padding: clamp(3rem, 7vw, 6rem) 0 2rem; }
+  .cta { display: grid; gap: 1.2rem; margin-bottom: clamp(3rem, 8vw, 7rem); }
+  .big { font-size: var(--step-3); line-height: 1.1; letter-spacing: -0.03em; font-weight: 300; max-width: 22ch; }
+  .big:hover .rose { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+  .row { display: grid; grid-template-columns: auto 1fr 1fr auto; gap: 2rem; align-items: end; border-top: 1px dashed var(--dash); padding-top: 1.5rem; }
+  .col { display: flex; flex-direction: column; gap: 0.35rem; }
+  .col.end { align-items: flex-end; }
+  .col a { align-self: flex-start; }
+  .replay:hover { color: var(--rose); }
+  @media (max-width: 760px) { .row { grid-template-columns: 1fr 1fr; } .col.end { align-items: flex-start; } }
+</style>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    document.querySelector('[data-replay]')?.addEventListener('click', () => {
+      try { sessionStorage.removeItem('overture-seen'); } catch {}
+      window.location.href = '/';
+    });
+  });
+</script>

@@ -1,0 +1,29 @@
+{
+  "name": "rigzen-phintso-bhutia",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Architecture portfolio of Rigzen Phintso Bhutia",
+  "engines": {
+    "node": ">=20.3.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "assets": "bash scripts/extract-assets.sh"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.0",
+    "@fontsource-variable/fira-code": "^5.3.0",
+    "@fontsource/noto-serif-tibetan": "^5.3.0",
+    "astro": "^5.18.2",
+    "gsap": "^3.15.1",
+    "lenis": "^1.3.27"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "typescript": "^5.9.3"
+  }
+}

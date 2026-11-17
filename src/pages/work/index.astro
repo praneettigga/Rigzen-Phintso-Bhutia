@@ -1,0 +1,284 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import { getProjects, slugOf, pad } from '../../lib';
+const projects = await getProjects();
+const total = pad(projects.length);
+const first = projects[0].data;
+---
+<Base title="Work" description="Selected works 2023 — 2026: resort, office, multi-family housing, working drawings and illustrations by Rigzen Phintso Bhutia.">
+  <section class="collection" data-coverflow>
+    <div class="head wrap">
+      <div>
+        <p class="label" data-cf-kind>{first.typology.split(' — ')[0]} / {first.year}</p>
+        <h1 class="title" data-cf-title>
+          {first.tibetan && <span class="tibetan" lang="bo">{first.tibetan}</span>}
+          <span>{first.wylie ?? first.title}</span>
+        </h1>
+      </div>
+      <p class="label count"><span data-cf-index>01</span> / {total}</p>
+    </div>
+
+    <div class="stage" data-cf-stage tabindex="0" aria-roledescription="carousel" aria-label="Selected works — use arrow keys to browse, Enter to open">
+      {projects.map((p, i) => (
+        <a
+          href={`/work/${slugOf(p)}`}
+          class="sleeve"
+          data-cf-item
+          data-kind={`${p.data.typology.split(' — ')[0]} / ${p.data.year}`}
+          data-tib={p.data.tibetan ?? ''}
+          data-name={p.data.wylie ?? p.data.title}
+          aria-label={`${pad(i + 1)} ${p.data.wylie ?? p.data.title} — ${p.data.typology}, ${p.data.year}`}
+          draggable="false"
+        >
+          <span class="art">
+            <Image src={p.data.cover} alt="" widths={[300, 450, 600]} sizes="(max-width: 700px) 56vw, 300px" loading={i < 3 ? 'eager' : 'lazy'} draggable="false" />
+          </span>
+          <span class="band">
+            <span class="band-title">
+              {p.data.tibetan && <span class="tibetan" lang="bo">{p.data.tibetan}</span>}
+              <span>{p.data.wylie ?? p.data.title}</span>
+            </span>
+            <span class="band-sub">{p.data.typology.split(' — ')[0]} / {p.data.year}</span>
+            <span class="band-foot"><span>Rigzen Phintso Bhutia</span><span>{pad(i + 1)} / {total}</span></span>
+          </span>
+          <span class="shadow" aria-hidden="true"></span>
+        </a>
+      ))}
+    </div>
+
+    <div class="controls wrap">
+      <button type="button" class="arrow" data-cf-prev aria-label="Previous work">‹</button>
+      <p class="hint label">Click to select · Click the centred sleeve to open<br />Drag the sleeve to turn it</p>
+      <button type="button" class="arrow" data-cf-next aria-label="Next work">›</button>
+    </div>
+  </section>
+
+  <section class="index wrap" aria-labelledby="index-title">
+    <h2 id="index-title" class="index-title asterisk" data-split>Index.</h2>
+    <ol>
+      {projects.map((p, i) => (
+        <li data-reveal style={`--delay:${i * 70}ms`}>
+          <a href={`/work/${slugOf(p)}`} class="row">
+            <span class="n">{pad(i + 1)}</span>
+            <span class="nm">{p.data.tibetan && <span class="tibetan rose" lang="bo">{p.data.tibetan}</span>} {p.data.wylie ?? p.data.title}</span>
+            <span class="ty">{p.data.typology.split(' — ')[0]}</span>
+            <span class="lo">{p.data.location ?? '—'}</span>
+            <span class="yr">{p.data.year}</span>
+            <span class="peek" aria-hidden="true"><Image src={p.data.cover} alt="" width={160} /></span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+</Base>
+
+<style>
+  .collection { padding-top: calc(var(--header-h) + 3vh); min-height: 100svh; display: flex; flex-direction: column; }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+  .title { font-size: var(--step-3); font-weight: 300; letter-spacing: -0.03em; line-height: 1.2; display: flex; align-items: baseline; gap: 0.6em; flex-wrap: wrap; margin-top: 0.3rem; transition: opacity 0.3s; }
+  .title :global(.tibetan) { color: var(--rose); font-size: 0.85em; }
+  .stage {
+    position: relative;
+    flex: 1;
+    min-height: clamp(380px, 58vh, 640px);
+    perspective: 1600px;
+    perspective-origin: 50% 45%;
+    touch-action: pan-y;
+    cursor: grab;
+    outline: none;
+    background: radial-gradient(ellipse 50% 45% at 50% 52%, var(--blush-50), transparent 70%);
+    overflow: hidden;
+  }
+  .stage:global(.dragging) { cursor: grabbing; }
+  .sleeve {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: clamp(200px, 24vw, 320px);
+    aspect-ratio: 4 / 5;
+    margin: 0;
+    transform-style: preserve-3d;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 6px;
+    user-select: none;
+    -webkit-user-drag: none;
+    will-change: transform;
+    transition: box-shadow 0.4s;
+  }
+  .sleeve:focus-visible { outline: 1.5px solid var(--coral); }
+  .art { display: block; overflow: hidden; background: var(--blush-50); border-left: 3px solid var(--ink); }
+  .art :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; pointer-events: none; }
+  .band { display: grid; gap: 0.25rem; padding: 0.7rem 0.6rem 0.35rem; background: #fdf8f8; }
+  .band-title { display: flex; gap: 0.5em; align-items: baseline; font-size: clamp(0.9rem, 1.3vw, 1.15rem); letter-spacing: -0.02em; color: var(--ink); }
+  .band-title .tibetan { color: var(--rose); }
+  .band-sub { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+  .band-foot { display: flex; justify-content: space-between; font-size: 0.52rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin-top: 0.3rem; }
+  .shadow { position: absolute; left: 8%; right: 8%; bottom: -36px; height: 22px; background: radial-gradient(ellipse at center, rgba(54, 81, 111, 0.28), transparent 70%); filter: blur(4px); transform: translateZ(-1px); }
+  .controls { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; border-top: 1px solid var(--line); padding-top: 1rem; padding-bottom: 1.5rem; text-align: center; }
+  .arrow { font-size: 1.6rem; height: 44px; color: var(--ink); transition: color 0.3s, opacity 0.3s; }
+  .arrow:hover { color: var(--rose); }
+  .arrow:disabled { opacity: 0.25; cursor: default; }
+  .hint { line-height: 1.9; text-transform: none; letter-spacing: 0.04em; }
+
+  .index { padding-top: clamp(4rem, 10vw, 8rem); }
+  .index-title { font-size: var(--step-3); font-weight: 340; margin-bottom: 2rem; }
+  .index ol { border-top: 1px solid var(--ink); }
+  .row { position: relative; display: grid; grid-template-columns: 3rem 1.4fr 1fr 1.2fr 7.5rem; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px dashed var(--dash); align-items: baseline; transition: padding 0.5s var(--ease), color 0.3s; }
+  .row:hover { padding-left: 0.8rem; color: var(--rose); }
+  .n { color: var(--rose); font-size: var(--step--1); }
+  .nm { font-size: var(--step-1); }
+  .ty, .lo { font-size: var(--step--1); color: var(--ink-soft); }
+  .yr { text-align: right; font-size: var(--step--1); }
+  .peek { position: absolute; right: 7rem; top: 50%; width: 80px; transform: translateY(-50%) rotate(4deg) scale(0.8); opacity: 0; transition: opacity 0.35s, transform 0.6s var(--ease); pointer-events: none; border: 1px solid var(--ink); }
+  .row:hover .peek { opacity: 1; transform: translateY(-50%) rotate(-3deg) scale(1); }
+  @media (max-width: 760px) {
+    .row { grid-template-columns: 2.2rem 1fr auto; }
+    .ty, .lo, .peek { display: none; }
+  }
+</style>
+
+<script>
+  function initCoverflow() {
+    const root = document.querySelector<HTMLElement>('[data-coverflow]');
+    if (!root) return;
+    const stage = root.querySelector<HTMLElement>('[data-cf-stage]')!;
+    const items = Array.from(root.querySelectorAll<HTMLAnchorElement>('[data-cf-item]'));
+    const kind = root.querySelector<HTMLElement>('[data-cf-kind]')!;
+    const title = root.querySelector<HTMLElement>('[data-cf-title]')!;
+    const index = root.querySelector<HTMLElement>('[data-cf-index]')!;
+    const prev = root.querySelector<HTMLButtonElement>('[data-cf-prev]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-cf-next]')!;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let pos = 0; // fractional, animated
+    let target = 0; // integer, selected
+    let raf = 0;
+    let current = -1;
+
+    const layout = () => {
+      const narrow = stage.clientWidth < 700;
+      const spacing = narrow ? stage.clientWidth * 0.42 : Math.min(stage.clientWidth * 0.2, 300);
+      items.forEach((el, i) => {
+        const o = i - pos;
+        const a = Math.abs(o);
+        const side = Math.sign(o);
+        const x = side * (Math.min(a, 1) * spacing * 1.08 + Math.max(0, a - 1) * spacing * 0.55);
+        const rot = -side * Math.min(a, 1) * 52;
+        const z = -Math.min(a, 3) * 160;
+        const s = 1 - Math.min(a, 1) * 0.12;
+        el.style.transform = `translate(-50%, -54%) translateX(${x}px) translateZ(${z}px) rotateY(${rot}deg) scale(${s})`;
+        el.style.zIndex = String(100 - Math.round(a * 10));
+        el.style.opacity = String(a > 3.2 ? 0 : 1 - Math.max(0, a - 2) * 0.6);
+        el.style.filter = `brightness(${1 - Math.min(a, 2) * 0.06})`;
+        el.tabIndex = Math.round(pos) === i ? 0 : -1;
+      });
+      const c = Math.round(pos);
+      if (c !== current) {
+        current = c;
+        const it = items[c];
+        kind.textContent = it.dataset.kind ?? '';
+        title.innerHTML = '';
+        if (it.dataset.tib) {
+          const t = document.createElement('span');
+          t.className = 'tibetan';
+          t.lang = 'bo';
+          t.textContent = it.dataset.tib;
+          title.append(t);
+        }
+        const n = document.createElement('span');
+        n.textContent = it.dataset.name ?? '';
+        title.append(n);
+        index.textContent = String(c + 1).padStart(2, '0');
+        prev.disabled = c === 0;
+        next.disabled = c === items.length - 1;
+      }
+    };
+
+    const animate = () => {
+      cancelAnimationFrame(raf);
+      const step = () => {
+        const d = target - pos;
+        pos += reduced ? d : d * 0.12;
+        if (Math.abs(d) < 0.001) pos = target;
+        layout();
+        if (pos !== target) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    };
+    const go = (i: number) => {
+      target = Math.max(0, Math.min(items.length - 1, i));
+      animate();
+    };
+
+    // drag
+    let startX = 0, startPos = 0, dragging = false, moved = 0;
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      dragging = true;
+      moved = 0;
+      startX = e.clientX;
+      startPos = pos;
+      cancelAnimationFrame(raf);
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('dragging');
+    });
+    stage.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      moved = Math.max(moved, Math.abs(dx));
+      const unit = stage.clientWidth < 700 ? stage.clientWidth * 0.45 : 260;
+      pos = Math.max(-0.4, Math.min(items.length - 0.6, startPos - dx / unit));
+      layout();
+    });
+    const end = (e: PointerEvent) => {
+      if (!dragging) return;
+      dragging = false;
+      stage.classList.remove('dragging');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+      if (moved > 6) {
+        go(Math.round(pos));
+      } else {
+        // treat as a click on whichever sleeve is under the pointer
+        const el = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLAnchorElement>('[data-cf-item]');
+        if (!el) return go(Math.round(pos));
+        const i = items.indexOf(el);
+        if (i === Math.round(pos) && Math.abs(pos - i) < 0.05) el.click();
+        else go(i);
+      }
+    };
+    stage.addEventListener('pointerup', end);
+    stage.addEventListener('pointercancel', end);
+    // swallow native clicks unless we triggered them programmatically
+    items.forEach((el) =>
+      el.addEventListener('click', (e) => {
+        if (e.isTrusted && e.detail !== 0) e.preventDefault();
+      }),
+    );
+
+    stage.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(target + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(target - 1); }
+      if (e.key === 'Enter') { e.preventDefault(); items[target].click(); }
+    });
+    let lastWheel = 0;
+    stage.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 8) {
+        e.preventDefault();
+        const now = performance.now();
+        if (now - lastWheel < 450) return;
+        lastWheel = now;
+        go(target + Math.sign(e.deltaX));
+      }
+    }, { passive: false });
+    prev.addEventListener('click', () => go(target - 1));
+    next.addEventListener('click', () => go(target + 1));
+    addEventListener('resize', layout);
+    document.addEventListener('astro:before-swap', () => removeEventListener('resize', layout), { once: true });
+    layout();
+  }
+  document.addEventListener('astro:page-load', initCoverflow);
+</script>

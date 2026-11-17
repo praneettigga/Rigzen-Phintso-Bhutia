@@ -1,0 +1,52 @@
+---
+import { Image } from 'astro:assets';
+import { getProjects, slugOf, pad } from '../lib';
+const projects = await getProjects();
+---
+<section class="contents wrap" aria-labelledby="contents-title">
+  <h2 id="contents-title" class="title asterisk" data-split>Contents.</h2>
+  <ol class="cards">
+    {projects.map((p, i) => (
+      <li class="card" data-reveal style={`--delay:${i * 110}ms`}>
+        <a href={`/work/${slugOf(p)}`} aria-label={`${pad(p.data.order)} — ${p.data.wylie ?? p.data.title}, ${p.data.typology}, ${p.data.year}`}>
+          <span class="num" aria-hidden="true"><sup>✱</sup>{pad(p.data.order)}</span>
+          <span class="poster">
+            <Image src={p.data.cover} alt="" widths={[240, 360, 480]} sizes="(max-width: 640px) 60vw, 220px" />
+          </span>
+          <span class="meta">
+            <span class="name">
+              {p.data.tibetan ? (<><span class="tibetan" lang="bo">{p.data.tibetan}</span> <span class="wylie">{p.data.wylie}</span></>) : <span class="wylie strong">{p.data.title}</span>}
+            </span>
+            <span class="sub"><span class="rose">{p.data.typology.split(' — ')[0]}</span><span class="rose">{p.data.year}</span></span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ol>
+  <a href="/work" class="view arrow-link link-u" data-reveal>View work <svg viewBox="0 0 12 12" fill="none" stroke="currentColor"><path d="M2 10 10 2M4 2h6v6" /></svg></a>
+</section>
+
+<style>
+  .contents { padding-block: clamp(3rem, 8vw, 7rem); }
+  .title { font-size: var(--step-3); font-weight: 340; letter-spacing: -0.02em; margin-bottom: clamp(2.5rem, 6vw, 5rem); }
+  .cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(1rem, 3vw, 3.2rem); }
+  .card a { display: grid; grid-template-columns: auto 1fr; column-gap: 0.7rem; }
+  .num { font-size: var(--step-2); font-weight: 300; color: var(--ink); align-self: start; margin-top: 18%; line-height: 1; }
+  .num sup { font-size: 0.45em; vertical-align: 1.1em; margin-right: 0.05em; }
+  .poster { display: block; border: 1.5px solid var(--ink); aspect-ratio: 164 / 333; overflow: hidden; transition: transform 0.7s var(--ease), box-shadow 0.7s var(--ease); background: var(--blush-50); }
+  .poster :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
+  .card a:hover .poster { transform: translateY(-10px) rotate(-1deg); box-shadow: 0 24px 40px -24px rgba(54, 81, 111, 0.45); }
+  .card a:hover .poster :global(img) { transform: scale(1.06); }
+  .meta { grid-column: 2; display: grid; gap: 0.2rem; margin-top: 0.55rem; font-size: 0.72rem; }
+  .name { color: var(--ink); display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; }
+  .name .tibetan { font-size: 0.95rem; }
+  .wylie { color: var(--ink-soft); }
+  .strong { color: var(--ink); font-weight: 450; }
+  .sub { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.66rem; }
+  .view { margin-top: clamp(3rem, 6vw, 5rem); font-size: var(--step-1); }
+  @media (max-width: 1000px) { .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 3rem; } }
+  @media (max-width: 640px) {
+    .cards { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 62vw; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 1rem; margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); scrollbar-width: none; }
+    .card { scroll-snap-align: start; }
+  }
+</style>

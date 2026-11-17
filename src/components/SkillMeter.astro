@@ -1,0 +1,19 @@
+---
+interface Props { name: string; level: number }
+const { name, level } = Astro.props;
+---
+<div class="skill" data-meter>
+  <span class="nm">{name}</span>
+  <span class="dots" role="img" aria-label={`${name}: ${level} out of 10`}>
+    {Array.from({ length: 10 }, (_, i) => <i class:list={{ on: i < level }} style={`--d:${i}`}></i>)}
+  </span>
+</div>
+<style>
+  .skill { display: grid; grid-template-columns: 9.5rem 1fr; align-items: center; gap: 1rem; padding: 0.45rem 0; font-size: var(--step--1); color: var(--ink-soft); }
+  .dots { position: relative; display: flex; justify-content: space-between; max-width: 15rem; }
+  .dots::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px dashed var(--blush-200); }
+  i { position: relative; width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--blush-200); background: #fff; }
+  i.on { border-color: var(--rose); }
+  i.on::after { content: ''; position: absolute; inset: -1px; border-radius: 50%; background: var(--rose); transform: scale(0); transition: transform 0.5s var(--ease); transition-delay: calc(var(--d) * 60ms + 200ms); }
+  :global(html:not(.js)) i.on::after, .skill:global(.is-in) i.on::after { transform: scale(1); }
+</style>
